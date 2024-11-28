@@ -13,10 +13,10 @@ import { useBuildingsContext } from "../../context/BuildingsContext";
 import { useRoomTypesContext } from "../../context/RoomTypesContext";
 import { useReservationTypesContext } from "../../context/ReservationTypesContext";
 import { Height } from "@mui/icons-material";
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const AddBooking = () => {
@@ -28,7 +28,7 @@ const AddBooking = () => {
   const [errors, setErrors] = useState({});
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  
+
   const {
     buildings,
     loading: buildingLoading,
@@ -44,10 +44,6 @@ const AddBooking = () => {
     loading: ReservationTypesLoading,
     error: ReservationTypesError,
   } = useReservationTypesContext();
-
-
-
- 
 
   const handleClose = () => {
     setShowAlert(false);
@@ -65,9 +61,7 @@ const AddBooking = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("user_token")}`,
         },
-        body: JSON.stringify({
-       
-        }),
+        body: JSON.stringify({}),
       });
 
       const content = await response.json();
@@ -114,8 +108,6 @@ const AddBooking = () => {
     }
   };
 
-
-  
   const [userState, setUserState] = useState(null);
 
   const Item = styled(Paper)(({ theme }) => ({
@@ -195,8 +187,7 @@ const AddBooking = () => {
           >
             {/* Select Building & Apartment */}
             <Stack sx={{ gap: 2 }} direction={"row"}>
-         
-            {/* <DateRangePicker
+              {/* <DateRangePicker
             weekStartDay="1"
             containerWidth="600px"
             textBoxWidth="400px"
@@ -205,26 +196,22 @@ const AddBooking = () => {
             cancelFunc={() => console.log("Cancel from parent")}
             dateFormatShow="DD MMMM,YYYY"
           /> */}
-  <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-      <Stack sx={{ gap: 2 }} direction={"row"}>
-        <DatePicker
-        sx={{ flex: 1 }}
-          label={'check in date'}
-          views={['year', 'month', 'day']}
-        />
-        <DatePicker
-        sx={{ flex: 1 }}
-          label={'check in date'}
-          views={['year', 'month', 'day']}
-        />
-        </Stack>
- 
-    </LocalizationProvider>
-
-       </Stack>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Stack sx={{ gap: 2 }} direction={"row"}>
+                  <DatePicker
+                    sx={{ flex: 1 }}
+                    label={"check in date"}
+                    views={["year", "month", "day"]}
+                  />
+                  <DatePicker
+                    sx={{ flex: 1 }}
+                    label={"check in date"}
+                    views={["year", "month", "day"]}
+                  />
+                </Stack>
+              </LocalizationProvider>
+            </Stack>
             <Stack sx={{ gap: 2 }} direction={"row"}>
-         
               <Autocomplete
                 sx={{ flex: 1 }}
                 options={buildings}
@@ -276,17 +263,17 @@ const AddBooking = () => {
       case 1:
         return (
           <DateRangePicker
-          startText="تاريخ الوصول"
-          endText="تاريخ المغادرة"
-          // value={dateRange}
-          // onChange={(newValue) => setDateRange(newValue)}
-          renderInput={(startProps, endProps) => (
-            <>
-              <TextField {...startProps} />
-              <TextField {...endProps} />
-            </>
-          )}
-        />
+            startText="تاريخ الوصول"
+            endText="تاريخ المغادرة"
+            // value={dateRange}
+            // onChange={(newValue) => setDateRange(newValue)}
+            renderInput={(startProps, endProps) => (
+              <>
+                <TextField {...startProps} />
+                <TextField {...endProps} />
+              </>
+            )}
+          />
         );
       case 2:
         return (
@@ -374,8 +361,6 @@ const AddBooking = () => {
     //         noValidate
     //         autoComplete="off"
     //       >
-
-   
 
     //       <>
     //           <Box sx={{ flexGrow: 1 }}>

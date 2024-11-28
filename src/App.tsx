@@ -10,6 +10,7 @@ import Login from "./Login";
 import { BuildingsProvider } from "./context/BuildingsContext";
 import { RoomTypesProvider } from "./context/RoomTypesContext";
 import { ReservationTypesProvider } from "./context/ReservationTypesContext";
+import { NationalitiesProvider } from "./context/NationalitiesContext";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -62,6 +63,7 @@ export default function MiniDrawer() {
       <BuildingsProvider>
       <RoomTypesProvider>
       <ReservationTypesProvider>
+      <NationalitiesProvider>
 
         <Box sx={{ display: "flex" }}>
           <CssBaseline />
@@ -77,7 +79,8 @@ export default function MiniDrawer() {
             <Outlet />
           </Box>
         </Box>
-      </ReservationTypesProvider>
+      </NationalitiesProvider>
+     </ReservationTypesProvider>
       </RoomTypesProvider>
       </BuildingsProvider>
     </ThemeProvider>

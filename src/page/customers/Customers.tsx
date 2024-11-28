@@ -1,421 +1,198 @@
-
-import React, { useState ,useRef } from "react";
-import FullCalendar from "@fullcalendar/react"; // must go before plugins
-import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
-import { Paper, Stack } from "@mui/material";
-import { Button, Typography } from "@mui/material";
-import { formatDate } from "@fullcalendar/core";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import { SchedulerRef } from "@aldabil/react-scheduler/types";
-import interactionPlugin from "@fullcalendar/interaction";
-import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import React, { useEffect, useState } from "react";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { Box, Typography, Stack} from "@mui/material";
+import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
+import Modal from '@mui/material/Modal';
+import Fade from '@mui/material/Fade';
+import Header from "../../components/Header";
+import Backdrop from '@mui/material/Backdrop';
 
 
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
+const Apartments = () => {
 
-
-import { Scheduler } from "@aldabil/react-scheduler";
-import "./calendar.css";
-
-
-function renderEventContent(eventInfo) {
-  return (
-    <>
-      <b>{eventInfo.timeText}</b>
-      <i>{eventInfo.event.title}</i>
-    </>
-  );
-}
-
-function renderSidebarEvent(event) {
-  return (
-    <li key={event.id}>
-      <b>
-        {formatDate(event.start, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })}
-      </b>
-      <i>{event.title}</i>
-    </li>
-  );
-}
-
-const Calendar2 = () => {
-
-  const localizer = momentLocalizer(moment);
-
-  const calendarRef = useRef<SchedulerRef>(null);
-
-
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: 'Room 101: Meeting',
-      start: new Date(2024, 9, 10, 10, 0),
-      end: new Date(2024, 9, 10, 12, 0),
-      roomId: '101',
-    },
-    {
-      id: 2,
-      title: 'Room 202: Workshop',
-      start: new Date(2024, 9, 11, 14, 0),
-      end: new Date(2024, 9, 11, 16, 0),
-      roomId: '202',
-    },
-  ]);
-
-  // غرف وهمية لتمثيل الصفوف
-  const rooms = ['101', '202', '303'];
-
-  const filteredEvents = events.map((event) => ({
-    ...event,
-    title: `Room ${event.roomId}: ${event.title}`,
-  }));
-
-  const moveEvent = ({ event, start, end }) => {
-    const updatedEvents = events.map((evt) =>
-      evt.id === event.id ? { ...evt, start, end } : evt
-    );
-    setEvents(updatedEvents);
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
   };
-
-
-
-   const EVENTS = [
-    {
-      event_id: 1,
-      title: "Event 1",
-      start: new Date(new Date(new Date().setHours(9)).setMinutes(30)),
-      end: new Date(new Date(new Date().setHours(10)).setMinutes(30)),
-      admin_id: 1
-    },
-    {
-      event_id: 2,
-      title: "Event 2",
-      start: new Date(new Date(new Date().setHours(10)).setMinutes(0)),
-      end: new Date(new Date(new Date().setHours(11)).setMinutes(0)),
-      admin_id: 2
-    },
-    {
-      event_id: 3,
-      title: "Event 3",
-      start: new Date(
-        new Date(new Date(new Date().setHours(9)).setMinutes(0)).setDate(
-          new Date().getDate() - 1
-        )
-      ),
-      end: new Date(new Date(new Date().setHours(10)).setMinutes(0)),
-      admin_id: 1
-    },
-    {
-      event_id: 4,
-      title: "Event 4",
-      start: new Date(
-        new Date(new Date(new Date().setHours(9)).setMinutes(0)).setDate(
-          new Date().getDate() - 2
-        )
-      ),
-      end: new Date(
-        new Date(new Date(new Date().setHours(10)).setMinutes(0)).setDate(
-          new Date().getDate() - 2
-        )
-      ),
-      admin_id: 2
-    },
-    {
-      event_id: 5,
-      title: "Event 5",
-      start: new Date(
-        new Date(new Date(new Date().setHours(10)).setMinutes(0)).setDate(
-          new Date().getDate() - 2
-        )
-      ),
-      end: new Date(
-        new Date(new Date(new Date().setHours(11)).setMinutes(0)).setDate(
-          new Date().getDate() + 10
-        )
-      ),
-      admin_id: 4
-    },
-    {
-      event_id: 6,
-      title: "Event 6",
-      start: new Date(new Date(new Date().setHours(11)).setMinutes(0)),
-      end: new Date(new Date(new Date().setHours(12)).setMinutes(0)),
-      admin_id: 2
-    },
-    {
-      event_id: 7,
-      title: "Event 7",
-      start: new Date(
-        new Date(new Date(new Date().setHours(11)).setMinutes(0)).setDate(
-          new Date().getDate() - 1
-        )
-      ),
-      end: new Date(
-        new Date(new Date(new Date().setHours(12)).setMinutes(0)).setDate(
-          new Date().getDate() - 1
-        )
-      ),
-      admin_id: 3
-    },
-    {
-      event_id: 8,
-      title: "Event 8",
-      start: new Date(
-        new Date(new Date(new Date().setHours(13)).setMinutes(0)).setDate(
-          new Date().getDate() - 1
-        )
-      ),
-      end: new Date(
-        new Date(new Date(new Date().setHours(14)).setMinutes(0)).setDate(
-          new Date().getDate() - 1
-        )
-      ),
-      admin_id: 4
-    },
-    {
-      event_id: 9,
-      title: "Event 11",
-      start: new Date(
-        new Date(new Date(new Date().setHours(13)).setMinutes(0)).setDate(
-          new Date().getDate() + 1
-        )
-      ),
-      end: new Date(
-        new Date(new Date(new Date().setHours(15)).setMinutes(30)).setDate(
-          new Date().getDate() + 1
-        )
-      ),
-      admin_id: 1
-    },
-    {
-      event_id: 10,
-      title: "Event 9",
-      start: new Date(
-        new Date(new Date(new Date().setHours(15)).setMinutes(0)).setDate(
-          new Date().getDate() + 1
-        )
-      ),
-      end: new Date(
-        new Date(new Date(new Date().setHours(16)).setMinutes(30)).setDate(
-          new Date().getDate() + 1
-        )
-      ),
-      admin_id: 2
-    },
-    {
-      event_id: 11,
-      title: "Event 10",
-      start: new Date(
-        new Date(new Date(new Date().setHours(11)).setMinutes(0)).setDate(
-          new Date().getDate() - 1
-        )
-      ),
-      end: new Date(
-        new Date(new Date(new Date().setHours(15)).setMinutes(0)).setDate(
-          new Date().getDate() - 1
-        )
-      ),
-      admin_id: 1
-    }
-  ];
   
-   const RESOURCES = [
+  const navigate = useNavigate();
+  const [customers, setCustomers] = useState([]);
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+
+  const handleEdit = (doctorId) => {
+    // Navigate to the edit page based on the doctor ID
+    // console.log(`Navigate to edit doctor page with ID: ${doctorId}`);
+    navigate(`/doctors/${doctorId}/edit`);
+  };
+
+  const handleDelete = (doctorId) => {
+    // Open the delete confirmation modal and set the selected doctor
+    handleOpen();
+    setSelectedDoctor(doctorId);
+    setDeleteConfirmationOpen(true);
+  };
+
+  const handleDeleteConfirmed = () => {
+    // Perform the actual delete operation and close the modal
+    console.log(`Delete doctor with ID: ${selectedDoctor}`);
+    setDeleteConfirmationOpen(false);
+  };
+
+  const handleDeleteCancelled = () => {
+    // Close the delete confirmation modal without performing the delete operation
+    setDeleteConfirmationOpen(false);
+  };
+
+
+
+
+  useEffect(() => {
+
+    fetch("http://127.0.0.1:8000/api/customers", {
+      headers: {
+        "Accept": "application/json",
+        Authorization: `Bearer ${localStorage.getItem('user_token')}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setCustomers(data.data.apartments[0]);
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
+
+
+  const columns = [
     {
-      admin_id: 1,
-      title: "room1",
-      mobile: "555666777",
-      avatar: "https://picsum.photos/200/300",
-      color: "#ab2d2d"
+      field: "id",
+      headerName: "ID",
+      width: 33,
+      align: "center",
+      headerAlign: "center",
     },
     {
-      admin_id: 2,
-      title: "Sarah",
-      mobile: "545678354",
-      avatar: "https://picsum.photos/200/300",
-      color: "#58ab2d"
+      field: "name",
+      headerName: "Name",
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
     },
     {
-      admin_id: 3,
-      title: "Joseph",
-      mobile: "543678433",
-      avatar: "https://picsum.photos/200/300",
-      color: "#a001a2"
+      field: "building_id",
+      headerName: "Building",
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+      valueGetter: (params) => params.row.building_id?.name || "N/A",
     },
     {
-      admin_id: 4,
-      title: "Mera",
-      mobile: "507487620",
-      avatar: "https://picsum.photos/200/300",
-      color: "#08c5bd"
-    }
+      field: "floor_number",
+      headerName: "Floor Number",
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+    },
+    { field: "total_rooms",
+       headerName: "Total Rooms", 
+       flex: 1,
+       align: "center", 
+       headerAlign: "center" 
+      },
+ 
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 200,
+      renderCell: (params) => (
+        <>
+          <Button variant="outlined" color="primary" sx={{ margin:1 }} onClick={() => handleEdit(params.row.id)}>
+            Edit
+          </Button>
+          <Button variant="outlined" color="secondary" onClick={() => handleDelete(params.row.id)}>
+            Delete
+          </Button>
+        </>
+      ),
+    },
   ];
-  const [weekendsVisible, setweekendsVisible] = useState(true);
-  const [currentEvents, setcurrentEvents] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-
-  const handleWeekendsToggle = () => {
-    setweekendsVisible(!weekendsVisible);
-  };
-
-  let eventGuid = 0;
-  function createEventId() {
-    return String(eventGuid++);
-  }
-
-
-
-  const handleDateSelect = (selectInfo) => {
-    let title = prompt("Please enter a new title for your event");
-    let calendarApi = selectInfo.view.calendar;
-
-    calendarApi.unselect(); // clear date selection
-
-    if (title) {
-      calendarApi.addEvent({
-        id: createEventId(),
-        title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        allDay: selectInfo.allDay,
-      });
-    }
-  };
-
-  const handleEventClick = (clickInfo) => {
-    if (
-      confirm(
-        `Are you sure you want to delete the event '${clickInfo.event.title}'`
-      )
-    ) {
-      clickInfo.event.remove();
-    }
-  };
-
-  const handleEvents = (events) => {
-    setcurrentEvents(events);
-  };
 
   return (
-    <Stack direction={"row"}>
-      {/* <Paper className="demo-app-sidebar">
-         
-       
-       
-          <h2 style={{ textAlign: "center" }}>All Events ({currentEvents.length})</h2>
-          <ul>{currentEvents.map(renderSidebarEvent)}</ul>
-         
-      </Paper> */}
-
-      <div className="demo-app-main">
-
-{/* 
- <Calendar
-        localizer={localizer}
-        events={filteredEvents}
-        startAccessor="start"
-        endAccessor="end"
-        defaultView="week"
-        resizable
-        selectable
-        onEventDrop={moveEvent} // السحب والإفلات
-        onEventResize={moveEvent} // تغيير حجم الحدث
-        style={{ height: 500 }}
-      /> */}
-
-
-
-
-
-
-   
-{/*         
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay",
-          }}
-          initialView="dayGridMonth"
-          editable={true}
-          selectable={true}
-          selectMirror={true}
-          dayMaxEvents={true}
-          weekends={weekendsVisible}
-          // initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
-          select={handleDateSelect}
-          eventContent={renderEventContent} 
-          eventClick={handleEventClick}
-          eventsSet={handleEvents} 
-      
-        /> */}
-
- <Scheduler
-        ref={calendarRef}
-        events={EVENTS}
-        view="day"
-
-        resourceViewMode="vertical"
-        resources={RESOURCES}
-        resourceFields={{
-          idField: "admin_id",
-          textField: "title",
-          subTextField: "mobile",
-          avatarField: "title",
-          colorField: "color"
+    <Box>
+      <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+            <Header
+              isDashboard={true}
+              title={"OUR APARTMENTS"}
+              subTitle={"Welcome to your dashboard"}
+            />
+            <Box sx={{ textAlign: "right", mb: 1.3 }}>
+              <Button
+                sx={{ padding: "6px 8px",textTransform: "capitalize" }}
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  navigate('/customers/add');
+                }}
+              >Add new Customer</Button>
+            </Box>
+      </Stack>
+     
+      <Box sx={{ height: 600, mx: "auto" }}>
+        <DataGrid
+        slots={{
+          toolbar: GridToolbar,
         }}
-        fields={[
-          {
-            name: "admin_id",
-            type: "select",
-            default: RESOURCES[0].admin_id,
-            options: RESOURCES.map((res) => {
-              return {
-                id: res.admin_id,
-                text: `${res.title} (${res.mobile})`,
-                value: res.admin_id //Should match "name" property
-              };
-            }),
-            config: { label: "Assignee", required: true }
-          }
-        ]}
-        viewerExtraComponent={(fields, event) => {
-          return (
-            <div>
-              {fields.map((field, i) => {
-                if (field.name === "admin_id") {
-                  const admin = field.options.find(
-                    (fe) => fe.id === event.admin_id
-                  );
-                  return (
-                    <Typography
-                      key={i}
-                      style={{ display: "flex", alignItems: "center" }}
-                      color="textSecondary"
-                      variant="caption"
-                      noWrap
-                    >
-                      <PersonRoundedIcon /> {admin.text}
-                    </Typography>
-                  );
-                } else {
-                  return "";
-                }
-              })}
-            </div>
-          );
+          rows={customers}
+          // @ts-ignore
+          columns={columns}
+          // getRowId={(row) => row.id}
+        />
+      </Box>
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+          },
         }}
-      /> 
-      </div>
-    </Stack>
+      >
+        <Fade in={open}>
+          <Box sx={style}>
+            <Typography id="transition-modal-title" variant="h6" component="h2">
+            Are you sure you want to delete the doctor?
+            </Typography>
+         
+
+            <>
+          <Button variant="outlined" color="success" sx={{ margin:1 }}>
+        yes
+          </Button>
+          <Button variant="outlined" color="secondary" >
+            no
+          </Button>
+        </>
+          </Box>
+        </Fade>
+      </Modal>
+    </Box>
   );
 };
 
-export default Calendar2;
+export default Apartments;

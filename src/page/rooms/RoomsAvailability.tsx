@@ -2,15 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import dayjs from 'dayjs';
 import {
-  Typography,
-  Box,
-  Autocomplete,
-  Stack,Modal,
-  TextField,
-  FormGroup,
-  Button,
-  Checkbox,
-  FormControlLabel,
+  Typography, Box, Autocomplete,Stack,Modal,TextField,FormGroup,Button,Checkbox,FormControlLabel,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
@@ -19,6 +11,9 @@ import { useRoomTypesContext } from "../../context/RoomTypesContext";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import Stepper from "@mui/material/Stepper";
+import Step from "@mui/material/Step";
+import StepLabel from "@mui/material/StepLabel";
 const RoomsAvailability = () => {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
@@ -43,7 +38,11 @@ const RoomsAvailability = () => {
   const [selectedRoomType, setSelectedRoomType] = useState(null);
   const [hasBalcony, setHasBalcony] = useState(false);
   const [hasBathroom, setHasBathroom] = useState(false);
-
+  const steps = [
+    "Booking Information",
+    "Customer Information",
+    "Other Information",
+  ];
   const [filters, setFilters] = useState({
     check_in_date: "",
     check_out_date: "",
@@ -56,6 +55,27 @@ const RoomsAvailability = () => {
     has_bathroom: hasBathroom,
   });
 
+  const [activeStep, setActiveStep] = React.useState(0);
+  const [skipped, setSkipped] = React.useState(new Set<number>());
+  const [showReservationModal, setShowReservationModal] = useState(false);
+
+
+  const handleAddReservationClick = (roomId) => {
+    // setSelectedRoomId(roomId); // Existing function to set room ID
+    setShowReservationModal(true); // Show reservation modal
+  };
+  
+  const [customerInfo, setCustomerInfo] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    nationalId: '',
+  });
+  
+  const handleCustomerChange = (e) => {
+    const { name, value } = e.target;
+    setCustomerInfo((prev) => ({ ...prev, [name]: value }));
+  };
   const CheckboxField = ({ label, checked, onChange }) => (
     <FormControlLabel
       control={<Checkbox checked={checked} onChange={onChange} />}
@@ -118,10 +138,7 @@ const RoomsAvailability = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: checked }));
-  };
+  
 
   useEffect(() => {
     if (selectedBuilding) {
@@ -198,7 +215,7 @@ const RoomsAvailability = () => {
     {
       field: "actions",
       headerName: "Actions",
-      flex: 1,
+      flex: 1,  
       width: 400,
       renderCell: (params) => (
         <>
@@ -214,7 +231,39 @@ const RoomsAvailability = () => {
     },
   ];
 
-
+  const handleSubmitReservation = async () => {
+    if (!customerInfo.fullName || !customerInfo.email || !filters.check_in_date || !filters.check_out_date) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+    try {
+      const response = await fetch("http://localhost:8000/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("user_token")}`,
+        },
+        body: JSON.stringify({
+          room_id: selectedRoomId,
+          check_in_date: filters.check_in_date,
+          check_out_date: filters.check_out_date,
+          customer_info: customerInfo,
+          price: rooms.find((r) => r.id === selectedRoomId)?.price,
+        }),
+      });
+  
+      if (response.ok) {
+        alert("Reservation successfully created!");
+        setShowReservationModal(false);
+        fetchRooms(); // Refresh the room list
+      } else {
+        const error = await response.json();
+        alert(`Failed to create reservation: ${error.message}`);
+      }
+    } catch (error) {
+      console.error("Error submitting reservation:", error);
+    }
+  };
   const columns = [
     {
       field: "id",
@@ -274,7 +323,7 @@ const RoomsAvailability = () => {
         <Button
           variant="outlined"
           sx={{ margin: 1 }}
-          onClick={() => handleBedSpaceClick(params.row.id)}
+          onClick={() => handleAddReservationClick(params.row.id)}
         >
           Add Reservation
         </Button>
@@ -283,6 +332,128 @@ const RoomsAvailability = () => {
       ),
     },
   ];
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+  const isStepSkipped = (step: number) => {
+    return skipped.has(step);
+  };
+
+  const handleNext = () => {
+    let newSkipped = skipped;
+    if (isStepSkipped(activeStep)) {
+      newSkipped = new Set(newSkipped.values());
+      newSkipped.delete(activeStep);
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setSkipped(newSkipped);
+  };
+
+  const renderStepContent = (step: number) => {
+    switch (step) {
+      case 0:
+        return (
+          <Box
+           
+        
+            sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+            noValidate
+            autoComplete="off"
+          >
+            {/* Select Building & Apartment */}
+            <Stack sx={{ gap: 2 , width: "100%" }} direction={"row"} >
+          
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+               
+                  <DatePicker
+                    sx={{ flex: 1 }}
+                    label={"check in date"}
+                    views={["year", "month", "day"]}
+                  />
+                  <DatePicker
+                    sx={{ flex: 1 }}
+                    label={"check in date"}
+                    views={["year", "month", "day"]}
+                  />
+         
+              </LocalizationProvider>
+            </Stack>
+            <Stack sx={{ gap: 2 }} direction={"row"}>
+              <Autocomplete
+                sx={{ flex: 1 }}
+                options={buildings}
+                getOptionLabel={(option) => option.name}
+                value={selectedBuilding}
+                onChange={(e, value) => setSelectedBuilding(value)}
+                renderInput={(params) => (
+                  <TextField {...params} label="Choose Building" />
+                )}
+              />
+
+              <Autocomplete
+                sx={{ flex: 1 }}
+                options={apartments}
+                getOptionLabel={(option) => option.name}
+                value={selectedApartment}
+                onChange={(e, value) => setSelectedApartment(value)}
+                loading={apartmentLoading}
+                renderInput={(params) => (
+                  <TextField {...params} label="Choose Apartment" />
+                )}
+              />
+            </Stack>
+
+            {/* Room Name & Type */}
+            <Stack sx={{ gap: 2 }} direction={"row"}>
+              <Autocomplete
+                sx={{ flex: 1 }}
+                options={room_types}
+                getOptionLabel={(option) => option.name}
+                value={selectedRoomType}
+                onChange={(e, value) => setSelectedRoomType(value)}
+                renderInput={(params) => (
+                  <TextField {...params} label="Choose Room Type" />
+                )}
+              />
+
+            
+            </Stack>
+          </Box>
+        );
+      case 1:
+        return (
+          <>
+          </>
+        );
+      case 2:
+        return (
+     
+          <>
+          <Button variant="contained" color="primary" onClick={handleSubmitReservation}>
+       Confirm Reservation
+     </Button>
+         </> 
+       
+     
+        );
+      case 3:
+        return (
+      
+
+          <>
+          <Button variant="contained" color="primary" onClick={handleSubmitReservation}>
+       Confirm Reservation
+     </Button>
+         </> 
+          
+        );
+      default:
+        return <Typography>انتهت الخطوات!</Typography>;
+    }
+  };
+
 
   return (
     <Box>
@@ -437,6 +608,47 @@ const RoomsAvailability = () => {
           </Box>
         </Box>
       </Modal>
+
+
+      <Modal
+  open={showReservationModal}
+  onClose={() => setShowReservationModal(false)}
+>
+<Box sx={{ width: 1200, backgroundColor: "white", padding: 2, margin: "auto", marginTop: 10 }}>
+    <Typography variant="h6">Add Reservation</Typography>
+    <Stepper activeStep={activeStep}>
+        {steps.map((label, index) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      {activeStep === steps.length ? (
+        <Typography sx={{ mt: 2, mb: 1 }}>تمت جميع الخطوات!</Typography>
+      ) : (
+        <React.Fragment>
+          <Box sx={{ mt: 2, mb: 1 }}>
+            {renderStepContent(activeStep)} {/* عرض المحتوى بناءً على الخطوة */}
+          </Box>
+          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+            <Button
+              color="inherit"
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              sx={{ mr: 1 }}
+            >
+              Back
+            </Button>
+            <Box sx={{ flex: "1 1 auto" }} />
+            <Button onClick={handleNext}>
+              {activeStep === steps.length - 1 ? "Finish" : "Next"}
+            </Button>
+          </Box>
+        </React.Fragment>
+      )}
+  
+  </Box>
+</Modal>
     </Box>
   );
 };

@@ -28,6 +28,7 @@ import EditApartment from "./page/apartments/EditApartment";
 
 import Bookings from "./page/bookings/Bookings";
 import Customers from "./page/customers/Customers";
+import AddCustomer from "./page/customers/AddCustomer";
 
 import Users from "./page/users/Users";
 import BarChart from "./page/barChart/BarChart";
@@ -67,6 +68,8 @@ const router = createBrowserRouter(
 
       
       <Route path="customers" element={<Customers />} />
+      <Route path="customers/add" element={<AddCustomer />} />
+      
       <Route path="users" element={<Users />} />
 
 
