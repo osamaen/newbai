@@ -33,8 +33,11 @@ export default function Login({ handleLogin, handleLogout }) {
         console.log(content.data.token);
         // Storing the token in local storage
           // localStorage.setItem('userToken');
+          const imageUrlBase = 'http://localhost:8000/image/';
 
           localStorage.setItem('user_token',content.data.token)
+          localStorage.setItem('full_name',content.data.user.first_name + ' ' + content.data.user.last_name)
+          localStorage.setItem('personal_photo',`${imageUrlBase}${content.data.user.personal_photo}`)
             // navigate('/dashboard');
             handleLogin();
    

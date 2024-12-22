@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { rows } from "./data";
 import { useTheme } from "@mui/material";
-import { Box, Typography } from "@mui/material";
+import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
+import { Box, Typography ,Stack } from "@mui/material";
 import {
   AdminPanelSettingsOutlined,
   LockOpenOutlined,
@@ -10,7 +11,33 @@ import {
 } from "@mui/icons-material";
 import Header from "../../components/Header";
 
+
+
+
+
 const Users = () => {
+
+  const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
+  useEffect(() => {
+
+    fetch("http://127.0.0.1:8000/api/users", {
+      headers: {
+        "Accept": "application/json",
+        Authorization: `Bearer ${localStorage.getItem('user_token')}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setUsers(data.data.users[0]);
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
+
+
+
+
+
   const theme = useTheme();
 
   // field ==> Reqird
@@ -23,21 +50,21 @@ const Users = () => {
       headerAlign: "center",
     },
     {
-      field: "name",
-      headerName: "name",
-      align: "center",
-      headerAlign: "center",
-    },
-    {
-      field: "email",
-      headerName: "email",
+      field: "full_name",
+      headerName: "Full Name",
       flex: 1,
       align: "center",
       headerAlign: "center",
     },
-    { field: "age", headerName: "age", align: "center", headerAlign: "center" },
     {
-      field: "phone",
+      field: "user_name",
+      headerName: "User Name",
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+    },
+    {
+      field: "phone_number",
       headerName: "phone",
       flex: 1,
       align: "center",
@@ -94,12 +121,32 @@ const Users = () => {
 
   return (
     <Box>
-      <Header title={"USERS"} subTitle={""} />
+   <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+    
+   <Header
+              isDashboard={true}
+              title={"OUR USERS"}
+              subTitle={"Welcome to your dashboard"}
+            />
+   <Box sx={{ textAlign: "right", mb: 1.3 }}>
+              <Button
+                sx={{ padding: "6px 8px",textTransform: "capitalize" }}
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  navigate('/users/add');
+                }}
+              >Add user</Button>
+            </Box>
+</Stack>
 
+      
+
+
+      
       <Box sx={{ height: 600, mx: "auto" }}>
         <DataGrid
-          rows={rows}
-          // @ts-ignore
+          rows={users}
           columns={columns}
         />
       </Box>

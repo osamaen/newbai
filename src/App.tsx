@@ -10,7 +10,9 @@ import Login from "./Login";
 import { BuildingsProvider } from "./context/BuildingsContext";
 import { RoomTypesProvider } from "./context/RoomTypesContext";
 import { ReservationTypesProvider } from "./context/ReservationTypesContext";
+import { ReservationStatusesProvider } from "./context/ReservationStatusesContext";
 import { NationalitiesProvider } from "./context/NationalitiesContext";
+import { LeadSourcesProvider } from "./context/LeadSourcesContext";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -63,8 +65,9 @@ export default function MiniDrawer() {
       <BuildingsProvider>
       <RoomTypesProvider>
       <ReservationTypesProvider>
+      <ReservationStatusesProvider>
       <NationalitiesProvider>
-
+      <LeadSourcesProvider>
         <Box sx={{ display: "flex" }}>
           <CssBaseline />
           <TopBar
@@ -79,7 +82,9 @@ export default function MiniDrawer() {
             <Outlet />
           </Box>
         </Box>
+      </LeadSourcesProvider>
       </NationalitiesProvider>
+     </ReservationStatusesProvider>
      </ReservationTypesProvider>
       </RoomTypesProvider>
       </BuildingsProvider>

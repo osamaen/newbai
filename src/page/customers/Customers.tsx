@@ -7,9 +7,15 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Header from "../../components/Header";
 import Backdrop from '@mui/material/Backdrop';
+import { styled, alpha } from "@mui/material/styles";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell, { tableCellClasses } from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
 
-
-const Apartments = () => {
+const Customers = () => {
 
   const style = {
     position: 'absolute',
@@ -32,10 +38,34 @@ const Apartments = () => {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
 
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const handleView = (customer) => {
+    // Set the selected customer for details view
+    setSelectedCustomer(customer);
+  
+    // رابط الأساس للحصول على الصور
+    const imageUrlBase = 'http://localhost:8000/image/';
+  
+
+    // console.log(`${imageUrlBase}${customer.passport_photo}`);
+    setSelectedCustomer((prevCustomer) => ({
+      ...prevCustomer,
+      idPhotoUrl: `${imageUrlBase}${customer.id_photo}`,
+      passportPhotoUrl: `${imageUrlBase}${customer.passport_photo}`,
+      personalPhotoUrl: `${imageUrlBase}${customer.personal_photo}`,
+
+    }));
+  
+    // عرض النافذة (المودال)
+    setShowDetailsModal(true);
+  };
+
+
   const handleEdit = (doctorId) => {
     // Navigate to the edit page based on the doctor ID
     // console.log(`Navigate to edit doctor page with ID: ${doctorId}`);
-    navigate(`/doctors/${doctorId}/edit`);
+    navigate(`/customer/${doctorId}/edit`);
   };
 
   const handleDelete = (doctorId) => {
@@ -44,7 +74,25 @@ const Apartments = () => {
     setSelectedDoctor(doctorId);
     setDeleteConfirmationOpen(true);
   };
+  const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    [`&.${tableCellClasses.body}`]: {
+      fontSize: 14,
+    },
+  }));
 
+  const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    "&:nth-of-type(odd)": {
+      backgroundColor: theme.palette.action.hover,
+    },
+    // hide last border
+    "&:last-child td, &:last-child th": {
+      border: 0,
+    },
+  }));
   const handleDeleteConfirmed = () => {
     // Perform the actual delete operation and close the modal
     console.log(`Delete doctor with ID: ${selectedDoctor}`);
@@ -60,7 +108,6 @@ const Apartments = () => {
 
 
   useEffect(() => {
-
     fetch("http://127.0.0.1:8000/api/customers", {
       headers: {
         "Accept": "application/json",
@@ -69,7 +116,7 @@ const Apartments = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setCustomers(data.data.apartments[0]);
+        setCustomers(data.data.customers[0]);
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
@@ -84,40 +131,36 @@ const Apartments = () => {
       headerAlign: "center",
     },
     {
-      field: "name",
-      headerName: "Name",
+      field: "full_name",
+      headerName: "Full Name",
       flex: 1,
       align: "center",
       headerAlign: "center",
     },
     {
-      field: "building_id",
-      headerName: "Building",
+      field: "nationality",
+      headerName: "nationality",
       flex: 1,
       align: "center",
       headerAlign: "center",
-      valueGetter: (params) => params.row.building_id?.name || "N/A",
+      valueGetter: (params) => params.row.nationality.name || "N/A",
     },
     {
-      field: "floor_number",
-      headerName: "Floor Number",
+      field: "phone_number",
+      headerName: "Phone Number",
       flex: 1,
       align: "center",
       headerAlign: "center",
     },
-    { field: "total_rooms",
-       headerName: "Total Rooms", 
-       flex: 1,
-       align: "center", 
-       headerAlign: "center" 
-      },
- 
     {
       field: "actions",
       headerName: "Actions",
-      width: 200,
+      flex: 1,
       renderCell: (params) => (
         <>
+         <Button variant="outlined" color="primary" sx={{ margin:1 }} onClick={() => handleView(params.row)}>
+            view
+          </Button>
           <Button variant="outlined" color="primary" sx={{ margin:1 }} onClick={() => handleEdit(params.row.id)}>
             Edit
           </Button>
@@ -134,7 +177,7 @@ const Apartments = () => {
       <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
             <Header
               isDashboard={true}
-              title={"OUR APARTMENTS"}
+              title={"OUR CUSTOMERS"}
               subTitle={"Welcome to your dashboard"}
             />
             <Box sx={{ textAlign: "right", mb: 1.3 }}>
@@ -160,6 +203,121 @@ const Apartments = () => {
           // getRowId={(row) => row.id}
         />
       </Box>
+      
+      <Modal open={showDetailsModal} onClose={() => setShowDetailsModal(false)}>
+  <Box sx={{ width: 1200, backgroundColor: "white", padding: 3, margin: "auto", marginTop: 10 }}>
+  <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="Reservation Details">
+                  <TableBody>
+                    <StyledTableRow>
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                        First name
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {selectedCustomer?.first_name || "N/A"}
+                      </StyledTableCell>
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                        last Name
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {selectedCustomer?.last_name || "N/A"}
+                      </StyledTableCell>
+                    </StyledTableRow>
+                    <StyledTableRow>
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                        Phone number
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {selectedCustomer?.phone_number || "N/A"}
+                      </StyledTableCell>
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                        gender
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {selectedCustomer?.gender?.name || "N/A"}
+                      </StyledTableCell>
+                    </StyledTableRow>
+                    <StyledTableRow>
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                        Nationality
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {selectedCustomer?.nationality?.name ||
+                          "N/A"}
+                      </StyledTableCell>
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                        email
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {selectedCustomer?.email || "N/A"}
+                      </StyledTableCell>
+                    </StyledTableRow>
+                    <StyledTableRow>
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                      Source of lead
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {selectedCustomer?.lead_source.name || "N/A"}
+                      </StyledTableCell>
+
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                       Lead by
+                      </StyledTableCell>
+                      <StyledTableCell>
+                      {selectedCustomer?.lead_by.full_name || "N/A"}
+                      </StyledTableCell>
+
+                    </StyledTableRow>
+                    <StyledTableRow>
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                        Note
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {selectedCustomer?.note || "N/A"}
+                      </StyledTableCell>
+
+                    
+
+                    </StyledTableRow>
+                    <StyledTableRow>
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                        Id photo
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        <img
+                          width={200}
+                          src={`http://localhost:8000/image/${selectedCustomer?.id_photo}`}
+                          alt="ID Photo"
+                        />
+                      </StyledTableCell>
+                      <StyledTableCell sx={{ fontWeight: 650 }}>
+                        Passport photo
+                      </StyledTableCell>
+                      <StyledTableCell>
+                  
+                        <img
+                          width={200}
+                          src={`http://localhost:8000/image/${selectedCustomer?.passport_photo}`}
+                          alt="ID Photo"
+                        />
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+    
+    
+    
+    
+    
+    
+
+    <Button sx={{ marginTop: 2 }} variant="contained" onClick={() => setShowDetailsModal(false)}>
+      Close
+    </Button>
+  </Box>
+</Modal>
+
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -176,7 +334,7 @@ const Apartments = () => {
         <Fade in={open}>
           <Box sx={style}>
             <Typography id="transition-modal-title" variant="h6" component="h2">
-            Are you sure you want to delete the doctor?
+            Are you sure you want to delete the customer?
             </Typography>
          
 
@@ -195,4 +353,4 @@ const Apartments = () => {
   );
 };
 
-export default Apartments;
+export default Customers;

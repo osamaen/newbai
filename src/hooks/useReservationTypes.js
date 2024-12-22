@@ -10,7 +10,7 @@ export const useReservationTypes = () => {
     setReservationTypesloading(true);
     try {
       const data = await reservationTypesApi.getAllReservationTypes();
-      setReservationTypes(data.data.reservationTypes[0]);
+      setReservationTypes(data.data.reservation_types[0]);
     } catch (err) {
       setReservationTypesError(err.message);
     } finally {

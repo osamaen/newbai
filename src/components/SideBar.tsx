@@ -25,6 +25,7 @@ import LocationCityOutlinedIcon from '@mui/icons-material/LocationCityOutlined';
 import { useLocation, useNavigate } from "react-router-dom";
 import { Collapse } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined';
 import { grey } from "@mui/material/colors";
 
@@ -88,31 +89,35 @@ const Array1 = [
 ];
 
 const Array2 = [
-  { text: "Bookings", icon: <PersonOutlinedIcon />, path: "/bookings" },
-  { text: "Customers", icon: <PeopleOutlinedIcon />, path: "/customers" },
   {
-    text: "Users",
-    icon: <HelpOutlineOutlinedIcon />,
-    path: "/users",
+    text: "Reservations",
+    icon: <PersonOutlinedIcon />,
+    path: "/bookings",
+    subItems: [
+      { text: "All Reservations", icon: <CalendarMonthIcon />, path: "/bookings/list" },
+      { text: "Today Check in", icon: <CalendarMonthIcon />, path: "/bookings/today-check-in" },
+      { text: "Today Check out",  icon: <CalendarMonthIcon />,path: "/bookings/today-check-out" },
+    ],
   },
+  { text: "Customers", icon: <PeopleOutlinedIcon />, path: "/customers" },
+  { text: "Users", icon: <HelpOutlineOutlinedIcon />, path: "/users" },
 ];
 
-// const Array3 = [
-//   { text: "Bar Chart", icon: <BarChartOutlinedIcon />, path: "/bar" },
-//   { text: "Pie Chart", icon: <PieChartOutlineOutlinedIcon />, path: "/pie" },
-//   { text: "Line Chart", icon: <TimelineOutlinedIcon />, path: "/line" },
-//   { text: "Geography Chart", icon: <MapOutlinedIcon />, path: "/geography" },
-// ];
+
 
 const SideBar = ({ open, handleDrawerClose }) => {
   let location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
-  const [openSubMenu, setOpenSubMenu] = useState(null);
+  
 
-  const handleToggle = (item) => {
-    setOpenSubMenu(openSubMenu === item ? null : item);
+
+  const [openMenu, setOpenMenu] = useState({});
+
+  const handleToggle = (path) => {
+    setOpenMenu((prev) => ({ ...prev, [path]: !prev[path] }));
   };
+
 
   return (
     <Drawer variant="permanent" open={open}>
@@ -136,13 +141,13 @@ const SideBar = ({ open, handleDrawerClose }) => {
           transition: "0.25s",
         }}
         alt="Remy Sharp"
-        src="https://media.allure.com/photos/5a26c1d8753d0c2eea9df033/3:4/w_1262,h_1683,c_limit/mostbeautiful.jpg"
+        src={localStorage.getItem('personal_photo')}
       />
       <Typography
         align="center"
         sx={{ fontSize: open ? 17 : 0, transition: "0.25s" }}
       >
-        Layla Ali
+     {localStorage.getItem('full_name')}
       </Typography>
       <Typography
         align="center"
@@ -226,13 +231,14 @@ const SideBar = ({ open, handleDrawerClose }) => {
       <Divider />
 
       <List>
-        {Array2.map((item) => (
-          <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
+      {Array2.map((item) => (
+        <div key={item.path}>
+          <ListItem disablePadding sx={{ display: "block" }}>
             <Tooltip title={open ? null : item.text} placement="left">
               <ListItemButton
-                onClick={() => {
-                  navigate(item.path);
-                }}
+                onClick={() =>
+                  item.subItems ? handleToggle(item.path) : navigate(item.path)
+                }
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
@@ -254,14 +260,32 @@ const SideBar = ({ open, handleDrawerClose }) => {
                 >
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText
-                  primary={item.text}
-                  sx={{ opacity: open ? 1 : 0 }}
-                />
+                <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
+                { open ? item.subItems && (openMenu[item.path] ?  <ExpandLess /> : <ExpandMore />) : ""}
               </ListItemButton>
             </Tooltip>
           </ListItem>
-        ))}
+
+          {item.subItems && (
+            <Collapse in={openMenu[item.path]} timeout="auto" unmountOnExit>
+              {item.subItems.map((subItem) => (
+                <ListItem
+                  key={subItem.path}
+                  disablePadding
+                  sx={{ pl: 4 }}
+                  onClick={() => navigate(subItem.path)}
+                >
+                  <ListItemButton>
+                    <ListItemText primary={subItem.text} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </Collapse>
+          )}
+        </div>
+      ))}
+  
+
       </List>
 
       <Divider />

@@ -103,7 +103,7 @@ const AddApartment = () => {
      
         <Stack sx={{ gap: 2 }} direction={"row"}>
 <FormControl   sx={{ flex: 1 }}>
-    <InputLabel id="demo-simple-select-helper-label">city</InputLabel>
+    <InputLabel id="demo-simple-select-helper-label">Building</InputLabel>
       <Select
         error={errors.city_id ? true : false}
         labelId="demo-simple-select-helper-label"

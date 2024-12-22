@@ -5,7 +5,7 @@ import { Alert, Button, Stack } from "@mui/material";
 import Header from "../../components/Header";
 import { useLocation } from "react-router-dom";
 
-const EditBuilding = () => {
+const EditUser = () => {
   const location = useLocation();
   const building = location.state;
 
@@ -157,4 +157,4 @@ const EditBuilding = () => {
 }
 
 
-export default EditBuilding ; 
+export default EditUser ; 

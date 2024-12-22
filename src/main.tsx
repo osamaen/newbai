@@ -11,6 +11,7 @@ import App from "./App";
 import Dashboard from "./page/dashboard/Dashboard";
 import Buildings from "./page/Buildings/Buildings";
 import AddBuildings from "./page/Buildings/AddBuilding";
+import EditBuilding from "./page/Buildings/EditBuilding";
 
 import AddBooking from "./page/bookings/AddBooking";
 
@@ -27,16 +28,21 @@ import AddApartment from "./page/apartments/AddApartment";
 import EditApartment from "./page/apartments/EditApartment";
 
 import Bookings from "./page/bookings/Bookings";
+import TodayCheckOut from "./page/bookings/TodayCheckOut";
+import TodayCheckIn from "./page/bookings/TodayCheckIn";
+
+
 import Customers from "./page/customers/Customers";
 import AddCustomer from "./page/customers/AddCustomer";
 
 import Users from "./page/users/Users";
+import AddUser from "./page/users/AddUser";
+import EditUser from "./page/users/EditUser";
 import BarChart from "./page/barChart/BarChart";
 import PieChart from "./page/pieChart/PieChart";
 import LineChart from "./page/lineChart/LineChart";
 import Geography from "./page/geography/Geography";
 import NotFound from "./page/notFound/NotFound";
-import EditDoctor from "./page/Buildings/EditBuilding";
 import EditBooking from "./page/bookings/EditBooking";
 
 const router = createBrowserRouter(
@@ -45,8 +51,8 @@ const router = createBrowserRouter(
       <Route index path="dashboard" element={<Dashboard />} />
       <Route path="login" element={<App />} />
       <Route path="buildings/list" element={<Buildings />} />
-      <Route path="doctors/add" element={<AddBuildings />} />
-      <Route path="doctors/:id/edit" element={<EditDoctor />} />
+      <Route path="buildings/add" element={<AddBuildings />} />
+      <Route path="buildings/:id/edit" element={<EditBuilding />} />
     
 
       <Route path="apartments/list" element={<Apartments />} />
@@ -62,23 +68,19 @@ const router = createBrowserRouter(
       <Route path="rooms/:id/bedspaces" element={<Bedspaces />} />
       <Route path="rooms/available" element={<RoomsAvailability />} />
 
-      <Route path="bookings" element={<Bookings />} />
+      <Route path="bookings/list" element={<Bookings />} />
       <Route path="bookings/add" element={<AddBooking />} />
       <Route path="bookings/:id/edit" element={<EditBooking />} />
+      <Route path="bookings/today-check-in" element={<TodayCheckIn />} />
+      <Route path="bookings/today-check-out" element={<TodayCheckOut />} />
 
       
       <Route path="customers" element={<Customers />} />
       <Route path="customers/add" element={<AddCustomer />} />
       
       <Route path="users" element={<Users />} />
-
-
-
-
-      <Route path="bar" element={<BarChart />} />
-      <Route path="pie" element={<PieChart />} />
-      <Route path="line" element={<LineChart />} />
-      <Route path="geography" element={<Geography />} />
+      <Route path="users/add" element={<AddUser />} />
+      <Route path="users/:id/edit" element={<EditUser />} />
 
 
 

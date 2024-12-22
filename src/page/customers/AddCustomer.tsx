@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { Alert, Button, Stack, MenuItem, Autocomplete } from "@mui/material";
@@ -12,22 +12,97 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useNationalitiesContext } from "../../context/NationalitiesContext";
+import { useLeadSourcesContext } from "../../context/LeadSourcesContext";
+import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
+import { styled } from "@mui/system";
+const blue = {
+  100: "#DAECFF",
+  200: "#b6daff",
+  400: "#3399FF",
+  500: "#007FFF",
+  600: "#0072E5",
+  900: "#003A75",
+};
+
+const grey = {
+  50: "#F3F6F9",
+  100: "#E5EAF2",
+  200: "#DAE2ED",
+  300: "#C7D0DD",
+  400: "#B0B8C4",
+  500: "#9DA8B7",
+  600: "#6B7A90",
+  700: "#434D5B",
+  800: "#303740",
+  900: "#1C2025",
+};
+
+const TextareaAutosize = styled(BaseTextareaAutosize)(
+  ({ theme }) => `
+  box-sizing: border-box;
+  width: 320px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
+  background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
+  border: 1px solid ${theme.palette.mode === "dark" ? grey[700] : grey[200]};
+  box-shadow: 0 2px 2px ${theme.palette.mode === "dark" ? grey[900] : grey[50]};
+
+  &:hover {
+    border-color: ${blue[400]};
+  }
+
+  &:focus {
+    border-color: ${blue[400]};
+    box-shadow: 0 0 0 3px ${
+      theme.palette.mode === "dark" ? blue[600] : blue[200]
+    };
+  }
+
+  /* firefox */
+  &:focus-visible {
+    outline: 0;
+  }
+`
+);
 const AddCustomer = () => {
-  const [showAlert, setShowAlert] = useState(false);
+   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+   const [showErrorAlert, setShowErrorAlert] = useState(false);
+   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
+  const [employees, setEmployees] = useState([]);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [nationalityId, setNationalityId] = useState(null);
+  const [leadById, setLeadById] = useState(null);
+  const [sourceOfLeadId, setSourceOfLeadId] = useState(null);
+  const [note, setNote] = useState(null);
   const [genderId, setGenderId] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [email, setEmail] = useState("");
   const [personalPhoto, setPersonalPhoto] = useState(null);
   const [passportPhoto, setPassportPhoto] = useState(null);
   const [idPhoto, setIdPhoto] = useState(null);
+  const [searchLoading, setSearchloading] = useState(false);
   const { nationalities, nationalitiesloading, nationalitiesError } =
     useNationalitiesContext();
+
+  const handleleadSourceIdChange = (event) => {
+    setSourceOfLeadId(event.target.value);
+    console.log(sourceOfLeadId);
+  };
+
+  const {
+    lead_sources,
+    loading: leadSourcesLoading,
+    error: leadSourcesError,
+  } = useLeadSourcesContext();
   // Handlers for each photo field
   const handlePersonalPhotoChange = (e) => {
     const file = e.target.files[0];
@@ -72,6 +147,9 @@ const AddCustomer = () => {
       formData.append("nationality_id", nationalityId?.id);
       formData.append("phone_number", phoneNumber);
       formData.append("id_number", idNumber);
+      formData.append("lead_source_id", sourceOfLeadId);
+      formData.append("lead_by", leadById?.id);
+      formData.append("note", note);
 
       if (idPhoto?.file) {
         formData.append("id_photo", idPhoto.file);
@@ -96,10 +174,14 @@ const AddCustomer = () => {
 
       const content = await response.json();
 
-      if (content.statusCode == 200) {
-        setShowAlert(true);
+      if (content.statusCode === 200) {
+        setShowSuccessAlert(true); // عرض تنبيه النجاح
+        setMessage(content.message); 
       } else {
-        setErrors(content.errors);
+        setErrors(content.errors); // إذا كانت هناك أخطاء
+        setMessage(content.message); 
+        setShowErrorAlert(true);
+
       }
     } catch (error) {
       console.log(error);
@@ -115,12 +197,43 @@ const AddCustomer = () => {
     );
     setPhotos(previewFiles);
   };
+
+  const fetchEmployees = async () => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/employees`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("user_token")}`,
+        },
+      });
+      const data = await response.json();
+      if (data.statusCode == 200) {
+        setEmployees(data.data.employees[0]);
+      }
+    } catch (err) {
+      console.error(err.message);
+    } finally {
+      // setApartmentLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
   return (
     <Box>
-      <Header title="CREATE CUSTOMERS" subTitle="Create a New Custoemr" />
-      {showAlert && (
+      <Header title="CREATE CUSTOMERS" subTitle="Create a New Customer" />
+      {showSuccessAlert && (
         <Alert severity="success" onClose={handleClose} sx={{ margin: "20px" }}>
-          saved successfull
+          {message}
+        </Alert>
+      )}
+      {showErrorAlert && (
+        <Alert severity="error" onClose={handleClose} sx={{ margin: "20px" }}>
+          {message}
         </Alert>
       )}
       <Box
@@ -139,8 +252,8 @@ const AddCustomer = () => {
             sx={{ flex: 1 }}
             label="first name"
             onChange={(e) => setFirstName(e.target.value)}
-            // error={errors.first_name ? true : false}
-            // helperText={errors.first_name && errors.first_name}
+            error={errors.first_name ? true : false}
+            helperText={errors.first_name && errors.first_name}
           />
           <TextField
             sx={{ flex: 1 }}
@@ -161,14 +274,63 @@ const AddCustomer = () => {
               <TextField {...params} label="Choose Nationality" />
             )}
           />
+          <FormControl sx={{ flex: 1 }}>
+            <InputLabel id="demo-simple-select-label">
+              source of lead
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={sourceOfLeadId}
+              label="source of lead"
+              onChange={handleleadSourceIdChange}
+            >
+              {leadSourcesLoading ? (
+                <MenuItem disabled>Loading...</MenuItem>
+              ) : leadSourcesError ? (
+                <MenuItem disabled>Error loading lead sources</MenuItem>
+              ) : (
+                lead_sources.map((source) => (
+                  <MenuItem key={source.id} value={source.id}>
+                    {source.name}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+          </FormControl>
 
-          <TextField
+          <Autocomplete
+            sx={{ flex: 1 }}
+            options={employees}
+            getOptionLabel={(option) => `${option.full_name}`}
+            // value={selectedEmployee}
+            // onChange={(e, value) => setSelectedEmployee(value)}
+
+            onChange={(e, value) => setLeadById(value)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Lead BY"
+                placeholder="Enter Name"
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {searchLoading ? <span>Loading...</span> : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+          />
+          {/* <TextField
             sx={{ flex: 1 }}
             label="id Number"
             onChange={(e) => setIdNumber(e.target.value)}
             error={errors.total_rooms ? true : false}
             helperText={errors.total_rooms}
-          />
+          /> */}
         </Stack>
         <Stack sx={{ gap: 2 }} direction={"row"}>
           <TextField
@@ -201,6 +363,7 @@ const AddCustomer = () => {
               error={errors.gender_id ? true : false}
               labelId="gender-select-label"
               id="gender-select"
+              label="gender"
               value={genderId}
               name="gender_id"
               onChange={handleGenderChange} // Add the onChange handler
@@ -220,8 +383,41 @@ const AddCustomer = () => {
             )}
           </FormControl>
         </Stack>
+        <TextField
+          sx={{ flex: 1 }}
+          label="note"
+          onChange={(e) => setNote(e.target.value)}
+          error={errors.note ? true : false}
+          helperText={errors.note}
+        />
 
         <Stack sx={{ gap: 2 }} direction="row">
+          <TextField
+            type="file"
+            inputProps={{ accept: "image/*" }}
+            sx={{ flex: 1 }}
+            label="Id Photo"
+            onChange={handleIdPhotoChange} // تحديث الصورة
+            error={errors.id_photo ? true : false}
+            helperText={errors.id_photo && errors.id_photo}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+          <TextField
+            type="file"
+            inputProps={{ accept: "image/*" }}
+            sx={{ flex: 1 }}
+            label="Passport Photo"
+            onChange={handlePassportPhotoChange} // تحديث الصورة
+            error={errors.passport_photo ? true : false}
+            helperText={errors.passport_photo && errors.passport_photo}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </Stack>
+        {/* <Stack sx={{ gap: 2 }} direction="row">
           <input
             type="file"
             accept="image/*"
@@ -237,9 +433,9 @@ const AddCustomer = () => {
           {personalPhoto && (
             <img src={personalPhoto.preview} alt="Personal" width={150} />
           )}
-        </Stack>
+        </Stack> */}
 
-        <Stack sx={{ gap: 2 }} direction="row">
+        {/* <Stack sx={{ gap: 2 }} direction="row">
           <input
             type="file"
             accept="image/*"
@@ -271,7 +467,7 @@ const AddCustomer = () => {
             </Button>
           </label>
           {idPhoto && <img src={idPhoto.preview} alt="ID" width={150} />}
-        </Stack>
+        </Stack> */}
 
         <Box sx={{ textAlign: "right" }}>
           <Button

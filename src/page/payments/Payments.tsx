@@ -9,7 +9,7 @@ import Header from "../../components/Header";
 import Backdrop from '@mui/material/Backdrop';
 
 
-const Buildings = () => {
+const Payments = () => {
 
   const style = {
     position: 'absolute',
@@ -232,4 +232,4 @@ const Buildings = () => {
   );
 };
 
-export default Buildings;
+export default Payments;

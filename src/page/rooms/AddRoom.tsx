@@ -9,12 +9,16 @@ import {
   Checkbox,
   FormGroup,
   FormControlLabel,
+  MenuItem,
+  Select
 } from "@mui/material";
+import InputLabel from "@mui/material/InputLabel";
 import Header from "../../components/Header";
 import { useBuildingsContext } from "../../context/BuildingsContext";
 import { useRoomTypesContext } from "../../context/RoomTypesContext";
 
-
+import FormControl from "@mui/material/FormControl";
+import FormHelperText from "@mui/material/FormHelperText";
 // Custom reusable form components
 const CheckboxField = ({ label, checked, onChange }) => (
   <FormControlLabel
@@ -25,6 +29,10 @@ const CheckboxField = ({ label, checked, onChange }) => (
 
 const AddRoom = () => {
   const [errors, setErrors] = useState({});
+    const [genderId, setGenderId] = useState("");
+  const handleGenderChange = (event) => {
+    setGenderId(event.target.value); // Update genderId state
+  };
   const {
     buildings,
     loading: buildingLoading,
@@ -120,6 +128,7 @@ const AddRoom = () => {
         has_balcony: hasBalcony,
         price,
         bed_spaces: bedDetails, 
+        gender_id : genderId
         }),
       });
 
@@ -224,6 +233,8 @@ const AddRoom = () => {
             error={!!errors.name}
             helperText={errors.name}
           />
+
+
         </Stack>
         {selectedRoomType?.id === 3 && (
           <Stack sx={{ gap: 2 }} direction={"row"}>
@@ -295,6 +306,33 @@ const AddRoom = () => {
     helperText={errors.price}
   />
 )}
+
+
+<FormControl sx={{ flex: 1 }}>
+            <InputLabel id="gender-select-label">Gender</InputLabel>
+            <Select
+              error={errors.gender_id ? true : false}
+              labelId="gender-select-label"
+              id="gender-select"
+              label="gender"
+              value={genderId}
+              name="gender_id"
+              onChange={handleGenderChange} // Add the onChange handler
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              <MenuItem value="1">Male</MenuItem>
+              <MenuItem value="2">Female</MenuItem>
+            </Select>
+
+            {/* Display error if it exists */}
+            {errors.gender_id && (
+              <FormHelperText sx={{ color: "#d32f2f" }}>
+                {errors.gender_id}
+              </FormHelperText>
+            )}
+          </FormControl>
           <FormGroup sx={{ flex: 1 }}>
             <CheckboxField
               label="Has Balcony"

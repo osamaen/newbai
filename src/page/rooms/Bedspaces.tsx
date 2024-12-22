@@ -75,7 +75,7 @@ const Bedspaces = () => {
         },
       });
       const data = await response.json();
-      setBedSpaces(data.data.bedSpaces[0]); // Assuming data is nested like in your example
+      setBedSpaces(data.data.bed_spaces[0]); // Assuming data is nested like in your example
     } catch (error) {
       console.error("Error fetching bed spaces:", error);
     } finally {
